@@ -30,6 +30,7 @@ jobs:
           blocked_id=$(echo "$output" | jq -r '.IPSets[] | select(.Name=="Blocked") | .Id')
           whitelist_id=$(echo "$output" | jq -r '.IPSets[] | select(.Name=="WhiteList") | .Id')
           blocked_addresses=$(aws wafv2 get-ip-set --scope CLOUDFRONT --region us-east-1 --name Blocked --id $blocked_id | jq -r '.IPSet.Addresses')
+          whitelist_addresses=$(aws wafv2 get-ip-set --scope CLOUDFRONT --region us-east-1 --name WhiteList --id $whitelist_id | jq -r '.IPSet.Addresses')
           json_output="{\"Blocked\": $blocked_addresses, \"WhiteList\": $whitelist_addresses}"
           echo $json_output > ip_addresses.json
           cat ip_addresses.json
