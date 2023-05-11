@@ -1,0 +1,35 @@
+name: WAF IPsets display
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - id: install-aws-cli
+        uses: unfor19/install-aws-cli-action@v1
+        with:
+          version: 2 # default
+          verbose: false # default
+          arch: amd64 # allowed values: amd64, arm64
+          rootdir: "" # defaults to "PWD"
+          workdir: "" # defaults to "PWD/unfor19-awscli"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Get WAF IPsets
+        run: |
+          output=$(aws wafv2 list-ip-sets --scope CLOUDFRONT --region us-east-1)
+          blocked_id=$(echo "$output" | jq -r '.IPSets[] | select(.Name=="Blocked") | .Id')
+          whitelist_id=$(echo "$output" | jq -r '.IPSets[] | select(.Name=="WhiteList") | .Id')
+          blocked_addresses=$(aws wafv2 get-ip-set --scope CLOUDFRONT --region us-east-1 --name Blocked --id $blocked_id | jq -r '.IPSet.Addresses')
+          json_output="{\"Blocked\": $blocked_addresses, \"WhiteList\": $whitelist_addresses}"
+          echo $json_output > ip_addresses.json
+          cat ip_addresses.json
