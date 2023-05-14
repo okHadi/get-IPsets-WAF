@@ -47,8 +47,5 @@ jobs:
         uses: bitovi/github-actions-react-to-ghp@v1.2.0
         with:
           checkout: false
-          build_command: |
-            cd drawer-app
-            CI=false npm install --force
-            CI=false npm run build
+          build_command: cd drawer-app && npm install --force && npm run build
           path: drawer-app/build
