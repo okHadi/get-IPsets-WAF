@@ -58,11 +58,11 @@ jobs:
           npm run build
           cd ..
 
-          - name: Upload production-ready build files
-          uses: actions/upload-artifact@v2
-          with:
-            name: production-files
-            path: ./drawer-app/build
+      - name: Upload production-ready build files
+        uses: actions/upload-artifact@v2
+        with:
+          name: production-files
+          path: ./drawer-app/build
 
   deploy:
     name: Deploy
