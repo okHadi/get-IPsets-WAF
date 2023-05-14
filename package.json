@@ -2,6 +2,7 @@
   "name": "drawer-app",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://okhadi.github.io/drawer-app/",
   "dependencies": {
     "@emotion/react": "^11.10.8",
     "@emotion/styled": "^11.10.8",
