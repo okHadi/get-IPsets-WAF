@@ -17,7 +17,14 @@ Add the required AWS secrets
 
 Push the code to your own repo (make sure not to include the original .git folder)
 
+### Step 5
+Go to settings > Pages > 
+      Source: Deploy from branch
+      Branch: gh-pages
+      Folder: /root
+ And save.
+
 ### Note:
 
-The react app shows two tables, so you can make changes according to your own likings.
+The react app shows two tables populated by "dev.json" and "prod.json". Right now, the react app is only populating the tables from "dev.json". Make changes like you see fit, both in the workflow and the react app.
 
