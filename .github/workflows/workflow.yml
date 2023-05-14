@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - id: install-aws-cli
         uses: unfor19/install-aws-cli-action@v1
@@ -55,6 +55,7 @@ jobs:
         run: |
           npm install --force
           npm run build
+          ls
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
