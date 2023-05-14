@@ -49,6 +49,7 @@ jobs:
           checkout: false
           build_command: |
             cd drawer-app
+            CI=false
             npm install --force
             npm run build
           path: drawer-app/build
