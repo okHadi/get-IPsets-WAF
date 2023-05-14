@@ -4,6 +4,11 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -37,3 +42,13 @@ jobs:
           json_output="{\"Blocked\": $blocked_addresses, \"WhiteList\": $whitelist_addresses}"
           echo $json_output > dev.json
           cp -fr dev.json drawer-app/src
+
+      - name: Publish react app on Github Pages
+        uses: bitovi/github-actions-react-to-ghp@v1.2.0
+        with:
+          checkout: false
+          build_command: |
+            cd drawer-app
+            npm install --force
+            npm run build
+          path: drawer-app/build
