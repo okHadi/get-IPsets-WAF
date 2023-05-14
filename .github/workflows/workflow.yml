@@ -58,11 +58,11 @@ jobs:
           ls
           pwd
 
-          - name: Upload production-ready build files
-          uses: actions/upload-artifact@v2
-          with:
-            name: production-files
-            path: ./build
+      - name: Upload production-ready build files
+        uses: actions/upload-artifact@v2
+        with:
+          name: production-files
+          path: ./build
 
   deploy:
     name: Deploy
