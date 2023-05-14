@@ -36,6 +36,4 @@ jobs:
           whitelist_addresses=$(aws wafv2 get-ip-set --scope CLOUDFRONT --region us-east-1 --name WhiteList --id $whitelist_id | jq -r '.IPSet.Addresses')
           json_output="{\"Blocked\": $blocked_addresses, \"WhiteList\": $whitelist_addresses}"
           echo $json_output > dev.json
-          cp -fr /dev.json /drawer-app/src
-          cd drawer-app/src
-          cat dev.json
+          cp -fr dev.json drawer-app/src
