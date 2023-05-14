@@ -1,0 +1,67 @@
+/* styles for accordion */
+.accordion-container {
+  height: 400px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+}
+.MuiAccordion-root {
+  margin: 10px;
+  background-color: black;
+  font-family: Inter, sansa-serif;
+  max-width: 650px;
+  
+}
+  
+.MuiAccordionSummary-root {
+  color: black;
+}
+.MuiAccordionSummary-content.Mui-expanded {
+  margin: 12px 0;
+}
+  
+.MuiAccordionDetails-root {
+  display: flex;
+  flex-direction: column;
+  color: black;
+  /* or any desired height */
+}
+
+  
+/* styles for tables */
+.MuiTable-root {
+  min-width: 650px;
+  font-family: Inter, sans-serif;
+}
+  
+.MuiTableCell-root {
+  font-size: 16px;
+}
+  
+/* styles for headings */
+h1 {
+  font-size: 36px;
+  margin-top: 5px;  
+  margin-bottom: 16px;
+  /* font-weight: 500; */
+  font-family: Inter, sans-serif;
+  color: black;
+  text-align: center;
+}
+  
+h2 {
+  font-size: 28px;
+  margin-bottom: 12px;
+  font-weight: 500;
+  font-family: Inter, sans-serif;
+  color: white;
+}
+  
+h3 {
+  font-size: 24px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-family: Inter, sans-serif;
+  color: white;
+}
