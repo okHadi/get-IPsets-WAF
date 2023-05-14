@@ -43,9 +43,20 @@ jobs:
           echo $json_output > dev.json
           cp -fr dev.json drawer-app/src
 
-      - name: Publish react app on Github Pages
-        uses: bitovi/github-actions-react-to-ghp@v1.2.0
+      - name: Setup NodeJS
+        uses: actions/setup-node@v3
         with:
-          checkout: false
-          build_command: cd drawer-app && npm install --force && npm run build
-          path: drawer-app/build
+          node-version: 18.x
+
+      - name: Build react app
+        run: |
+          cd drawer-app
+          npm install --force
+          npm run build
+          cd ..
+
+      - name: Deploy to Github Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: drawer-app/build
