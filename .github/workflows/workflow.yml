@@ -8,6 +8,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
       - id: install-aws-cli
         uses: unfor19/install-aws-cli-action@v1
         with:
@@ -34,3 +37,5 @@ jobs:
           json_output="{\"Blocked\": $blocked_addresses, \"WhiteList\": $whitelist_addresses}"
           echo $json_output > ip_addresses.json
           cat ip_addresses.json
+          pwd
+          ls
