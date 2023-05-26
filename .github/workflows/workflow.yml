@@ -54,7 +54,11 @@ jobs:
 
       - name: Build react app
         run: |
-          echo "GITHUB_TOKEN={secrets.ACCESS_TOKEN_GITHUB}" > .env
+          file_path="src/App.js"
+          app_js_contents=$(cat "$file_path")
+          access_token=$(jq -R -s @json "$secrets.ACCESS_TOKEN_GITHUB" | sed 's/\\//g' | sed 's/\"/\\\"/g')
+          new_app_js_contents="${app_js_contents//process.env.GITHUB_TOKEN/$access_token}"
+          echo "$new_app_js_contents" > "$file_path"
           npm install --force
           npm run build
 
