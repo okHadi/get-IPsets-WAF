@@ -184,7 +184,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Button to trigger API request */}
+      {/* Button to trigger API reques t */}
       <Button variant="contained" color="primary" onClick={dispatchWorkflow}>
         Dispatch Workflow
       </Button>
