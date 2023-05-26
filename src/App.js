@@ -76,9 +76,9 @@ export default function App() {
     const repo = 'get-IPsets-WAF';
     const workflowId = '56979211';
     const branchName = 'main';
-    const accessToken = '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'; // Replace with your access token
-    //Expired token as placeholder. Should be stored in a .env file.
-    // TO DO: FIGURE OUT HOW TO STORE AND ACCESS .ENV FILE IN REACT IN BUILD MODE
+    const accessToken = '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'; // Replace with your access token
+    //Expired token. Must be hidden.
+    //TO DO: FIND OUT HOW TO HIDE TOKEN IN BUILD PIPELINE FOR GITHUB PAGES
     const url = `https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflowId}/dispatches`;
 
     try {
