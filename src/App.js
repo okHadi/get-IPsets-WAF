@@ -77,7 +77,7 @@ export default function App() {
     const workflowId = '56979211';
     const branchName = 'main';
     const accessToken = process.env.GITHUB_TOKEN; // Replace with your access token
-    //Expired token. Must be hidden.
+    //Expired token. Must be hidden.s
     //TO DO: FIND OUT HOW TO HIDE TOKEN IN BUILD PIPELINE FOR GITHUB PAGES
     const url = `https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflowId}/dispatches`;
 
