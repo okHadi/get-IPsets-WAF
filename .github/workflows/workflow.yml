@@ -54,6 +54,7 @@ jobs:
 
       - name: Build react app
         run: |
+          echo "GITHUB_TOKEN={secrets.ACCESS_TOKEN_GITHUB}" > .env
           npm install --force
           npm run build
 
