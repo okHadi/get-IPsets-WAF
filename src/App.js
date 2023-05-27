@@ -20,6 +20,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import './App.css';
 import axios from 'axios';
 
+
 const StyledExpandMoreIcon = withStyles({
   root: {
     color: 'white',
@@ -76,7 +77,7 @@ export default function App() {
     const repo = 'get-IPsets-WAF';
     const workflowId = '56979211';
     const branchName = 'main';
-    const accessToken = process.env.GITHUB_TOKEN; // Replace with your access token
+    const accessToken = process.env.REACT_APP_ACCESS_TOKEN; // Replace with your access token
     //Expired token. Must be hidden.s
     //TO DO: FIND OUT HOW TO HIDE TOKEN IN BUILD PIPELINE FOR GITHUB PAGES
     const url = `https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflowId}/dispatches`;
