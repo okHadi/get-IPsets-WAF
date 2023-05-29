@@ -9,7 +9,7 @@ on:
         type: string
 
 env:
-  IPSET_NAME: waf-test
+  IPSET_NAME: Blocked
 
 jobs:
   block-ip:
