@@ -1,0 +1,61 @@
+name: Add IP to BlockList WAF
+
+on:
+  workflow_dispatch:
+    inputs:
+      ip:
+        description: Add the IP to the block list
+        required: true
+        type: string
+
+env:
+  IPSET_NAME: waf-test
+
+jobs:
+  block-ip:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - id: install-aws-cli
+        uses: unfor19/install-aws-cli-action@v1
+        with:
+          version: 2 # default
+          verbose: false # default
+          arch: amd64 # allowed values: amd64, arm64
+          rootdir: "" # defaults to "PWD"
+          workdir: "" # defaults to "PWD/unfor19-awscli"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Create the IP set
+        continue-on-error: true
+        run: |
+          aws sts get-caller-identity
+          aws wafv2 create-ip-set --name $IPSET_NAME --scope CLOUDFRONT --ip-address-version IPV4 --addresses 0.0.0.0/32 --region us-east-1
+      - name: Add the IP to the IP set
+        run: |
+          sudo apt install jq
+          echo ${{ inputs.ip }}
+          ipsetDetails=$(aws wafv2 list-ip-sets --scope CLOUDFRONT --region us-east-1)
+          ipsetId=$(echo $ipsetDetails | jq -r '.IPSets[0].Id')
+          ipSet=$(aws wafv2 get-ip-set --name $IPSET_NAME --scope CLOUDFRONT --region us-east-1 --id $ipsetId)
+          addresses=$(echo $ipSet | jq -r '.IPSet.Addresses')
+          new_addresses=$(jq -n --argjson ips "$addresses" --arg new_ip "${{ inputs.ip }}/32" '{"Addresses": ($ips + [$new_ip])}')
+          echo $new_addresses
+          echo $new_addresses > ips.json
+
+          lockToken=$(echo $ipSet | jq -r '.LockToken')
+          aws wafv2 update-ip-set --scope CLOUDFRONT --name $IPSET_NAME --id $ipsetId --lock-token $lockToken --region us-east-1 --cli-input-json file://ips.json
+
+        env:
+          AWS_DEFAULT_REGION: us-east-1 # Replace with the AWS region where your WAF is configured
