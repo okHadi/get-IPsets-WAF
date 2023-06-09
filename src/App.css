@@ -2,7 +2,7 @@
 
 /* styles for accordion */
 .accordion-container {
-  height: 400px;
+  height: 300px; /* Decrease the height as needed */
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -16,7 +16,7 @@
   margin: 10px;
   background-color: black;
   font-family: Inter, sans-serif;
-  min-width: 600px;
+  min-width: 400px; /* Decrease the width as needed */
   flex: 1;
 }
 

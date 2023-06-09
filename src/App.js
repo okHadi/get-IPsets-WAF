@@ -42,6 +42,7 @@ export default function App() {
   const [filteredData, setFilteredData] = useState({
     blocked: statusData.Blocked.map(ip => ({ ip, status: 'blocked' })),
     whitelist: statusData.WhiteList.map(ip => ({ ip, status: 'whitelisted' })),
+    ipsets: statusData.BlockedGithub.map(ip => ({ ip, status: 'ipsets' })),
   });
   useEffect(() => {
     const filteredBlocked = statusData.Blocked.filter((row) =>
@@ -51,6 +52,10 @@ export default function App() {
       row.toLowerCase().includes(searchTerm.toLowerCase())
     ).map(ip => ({ ip, status: 'whitelisted' }));
     setFilteredData({ blocked: filteredBlocked, whitelist: filteredWhitelist });
+    const filteredIpsets = statusData.BlockedGithub.filter((row) =>
+      row.toLowerCase().includes(searchTerm.toLowerCase())
+    ).map(ip => ({ ip, status: 'ipsets' }));
+    setFilteredData({ blocked: filteredBlocked, whitelist: filteredWhitelist, ipsets: filteredIpsets });
   }, [searchTerm]);
   const AccordionSummary = withStyles({
     root: {
@@ -134,6 +139,45 @@ export default function App() {
                     </TableHead>
                     <TableBody>
                       {filteredData.whitelist.map((ip) => (
+                        <TableRow key={ip.ip}>
+                          <TableCell component="th" scope="row">
+                            {ip.ip}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </AccordionDetails>
+            </Accordion>
+          </AccordionDetails>
+        </div>
+        <div className="accordion-container">
+          <AccordionDetails className={classes.accordionDetails}>
+            <Accordion defaultExpanded>
+              <AccordionSummary expandIcon={<StyledExpandMoreIcon />}>
+                <h3>Blocked Github</h3>
+              </AccordionSummary>
+              <AccordionDetails className={classes.accordionDetails}>
+                <div className="search-container">
+                  <TextField
+                    label="Search"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    fullWidth
+                    margin="normal"
+                    variant="outlined"
+                  />
+                </div>
+                <TableContainer component={Paper}>
+                  <Table className={classes.table} aria-label="Blocked IPset Table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>IP Address</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {filteredData.ipsets.map((ip) => (
                         <TableRow key={ip.ip}>
                           <TableCell component="th" scope="row">
                             {ip.ip}
