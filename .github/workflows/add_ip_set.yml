@@ -61,7 +61,13 @@ jobs:
           json_data=$(cat ip-descriptions.json)
           existing_entries=$(echo "$json_data" | jq -c '.ip_and_description[]')
           new_entry=$(jq -n --arg ip "$new_ip" --arg desc "$new_description" '{"ip": $ip, "description": $desc}')
-          updated_entries="[$existing_entries,$new_entry]"
+
+          if [[ "$existing_entries" ]]; then
+            updated_entries="[$existing_entries, $new_entry]"
+          else
+            updated_entries="[$new_entry]"
+          fi
+
           updated_json=$(echo "$json_data" | jq '.ip_and_description = '"$updated_entries")
           echo "$updated_json" > ip-descriptions.json
           aws s3 cp ip-descriptions.json s3://ipset-waf/ip-descriptions.json
