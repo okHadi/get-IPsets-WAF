@@ -43,6 +43,13 @@
 .MuiTableCell-root {
   font-size: 16px;
 }
+
+/* tooltip text */
+.tooltipContent {
+  font-size: 16px; /* Adjust the font size value as per your requirement */
+}
+
+
 /* styles for headings */
 h1 {
   font-size: 36px;
