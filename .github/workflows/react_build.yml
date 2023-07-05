@@ -1,10 +1,10 @@
 name: WAF IPsets display
 on:
-  # workflow_run:
-  #   workflows: ["Add IP to BlockList WAF"]
-  #   types:
-  #     - completed
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Add IP to BlockList WAF"]
+    types:
+      - completed
+  # workflow_dispatch:
 
 permissions:
   contents: write
@@ -13,6 +13,7 @@ permissions:
 
 env:
   CI: false
+  Scope: REGIONAL
 
 jobs:
   build:
@@ -22,15 +23,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1
-        with:
-          version: 2 #default
-          verbose: false # default
-          arch: amd64 # allowed values: amd64, arm64
-          rootdir: "" # defaults to "PWD"
-          workdir: "" # defaults to "PWD/unfor19-awscli"
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -38,19 +30,26 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Get WAF IPsets
+      - name: Get IPsets from WAF and S3
         run: |
-          output=$(aws wafv2 list-ip-sets --scope CLOUDFRONT --region us-east-1)
+          output=$(aws wafv2 list-ip-sets --scope $Scope --region us-east-1)
           blocked_id=$(echo "$output" | jq -r '.IPSets[] | select(.Name=="Blocked") | .Id')
           whitelist_id=$(echo "$output" | jq -r '.IPSets[] | select(.Name=="WhiteList") | .Id')
           blocked_github_id=$(echo "$output" | jq -r '.IPSets[] | select(.Name=="blockedGithub") | .Id')
-          blocked_addresses=$(aws wafv2 get-ip-set --scope CLOUDFRONT --region us-east-1 --name Blocked --id $blocked_id | jq -r '.IPSet.Addresses')
-          whitelist_addresses=$(aws wafv2 get-ip-set --scope CLOUDFRONT --region us-east-1 --name WhiteList --id $whitelist_id | jq -r '.IPSet.Addresses')
-          blocked_github_addresses=$(aws wafv2 get-ip-set --scope CLOUDFRONT --region us-east-1 --name blockedGithub --id $blocked_github_id | jq -r '.IPSet.Addresses')
-          json_output="{\"Blocked\": $blocked_addresses, \"WhiteList\": $whitelist_addresses , \"BlockedGithub\": $blocked_github_addresses}"
-          echo $json_output > dev.json
-          cp -fr dev.json src
+          blocked_addresses=$(aws wafv2 get-ip-set --scope $Scope --region us-east-1 --name Blocked --id $blocked_id | jq -r '.IPSet.Addresses')
+          whitelist_addresses=$(aws wafv2 get-ip-set --scope $Scope --region us-east-1 --name WhiteList --id $whitelist_id | jq -r '.IPSet.Addresses')
+          blocked_github_addresses=$(aws wafv2 get-ip-set --scope $Scope --region us-east-1 --name blockedGithub --id $blocked_github_id | jq -r '.IPSet.Addresses')
 
+
+          blocked_array=$(echo "$blocked_addresses" | jq -c '.[] | {ip: ., description: ""}' | paste -sd ',')
+          whitelist_array=$(echo "$whitelist_addresses" | jq -c '.[] | {ip: ., description: ""}' | paste -sd ',')
+          blocked_github_array=$(echo "$blocked_github_addresses" | jq -c '.[] | {ip: ., description: ""}' | paste -sd ',')
+
+          json_output="{\"Blocked\": [$blocked_array], \"WhiteList\": [$whitelist_array], \"BlockedGithub\": [$blocked_github_array]}"
+          echo $json_output > dev.json
+          aws s3api get-object --bucket ipset-waf --key ip-descriptions.json ip-descriptions.json
+          python merge.py
+          cp -fr ips_with_descriptions.json src
       - name: Setup NodeJS
         uses: actions/setup-node@v3
         with:

@@ -57,7 +57,7 @@ jobs:
         run: |
           new_ip="${{ inputs.ip }}/32"
           new_description="${{ inputs.description }}"
-          aws s3api get-object --bucket ipset-waf --key ip-descriptions.json ip-descriptions.json
+          aws s3api get-object --bucket ipset-waf --key ip-descriptions.json ip-descriptions.json 
           json_data=$(cat ip-descriptions.json)
           existing_entries=$(echo "$json_data" | jq -c '.ip_and_description[]')
           new_entry=$(jq -n --arg ip "$new_ip" --arg desc "$new_description" '{"ip": $ip, "description": $desc}')
