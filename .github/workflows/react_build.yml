@@ -1,9 +1,10 @@
 name: WAF IPsets display
 on:
-  workflow_run:
-    workflows: ["Add IP to BlockList WAF"]
-    types:
-      - completed
+  # workflow_run:
+  #   workflows: ["Add IP to BlockList WAF"]
+  #   types:
+  #     - completed
+  workflow_dispatch:
 
 permissions:
   contents: write

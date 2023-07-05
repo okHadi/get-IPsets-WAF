@@ -7,6 +7,10 @@ on:
         description: Add the IP to the block list
         required: true
         type: string
+      description:
+        description: Short description/reason
+        required: true
+        type: string
 
 env:
   IPSET_NAME: Blocked
@@ -20,15 +24,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
-      - id: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1
-        with:
-          version: 2 # default
-          verbose: false # default
-          arch: amd64 # allowed values: amd64, arm64
-          rootdir: "" # defaults to "PWD"
-          workdir: "" # defaults to "PWD/unfor19-awscli"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -57,5 +52,17 @@ jobs:
           lockToken=$(echo $ipSet | jq -r '.LockToken')
           aws wafv2 update-ip-set --scope CLOUDFRONT --name $IPSET_NAME --id $ipsetId --lock-token $lockToken --region us-east-1 --cli-input-json file://ips.json
 
+      - name: Add the IP and description to S3 bucket
+        run: |
+          new_ip="${{ inputs.ip }}"
+          new_description="${{ inputs.description }}"
+          aws s3api get-object --bucket ipset-waf --key ip-descriptions.json ip-descriptions.json
+          json_data=$(cat ip-descriptions.json)
+          existing_entries=$(echo "$json_data" | jq -c '.ip_and_description[]')
+          new_entry=$(jq -n --arg ip "$new_ip" --arg desc "$new_description" '{"ip": $ip, "description": $desc}')
+          updated_entries="[$existing_entries,$new_entry]"
+          updated_json=$(echo "$json_data" | jq '.ip_and_description = '"$updated_entries")
+          echo "$updated_json" > ip-descriptions.json
+          aws s3 cp ip-descriptions.json s3://ipset-waf/ip-descriptions.json
         env:
           AWS_DEFAULT_REGION: us-east-1 # Replace with the AWS region where your WAF is configured
