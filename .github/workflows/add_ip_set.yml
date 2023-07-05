@@ -51,7 +51,8 @@ jobs:
 
           lockToken=$(echo $ipSet | jq -r '.LockToken')
           aws wafv2 update-ip-set --scope CLOUDFRONT --name $IPSET_NAME --id $ipsetId --lock-token $lockToken --region us-east-1 --cli-input-json file://ips.json
-
+        env:
+          AWS_DEFAULT_REGION: us-east-1 # Replace with the AWS region where your WAF is configured
       - name: Add the IP and description to S3 bucket
         run: |
           new_ip="${{ inputs.ip }}"
@@ -64,5 +65,3 @@ jobs:
           updated_json=$(echo "$json_data" | jq '.ip_and_description = '"$updated_entries")
           echo "$updated_json" > ip-descriptions.json
           aws s3 cp ip-descriptions.json s3://ipset-waf/ip-descriptions.json
-        env:
-          AWS_DEFAULT_REGION: us-east-1 # Replace with the AWS region where your WAF is configured
