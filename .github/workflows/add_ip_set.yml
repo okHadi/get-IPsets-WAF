@@ -14,6 +14,10 @@ on:
 
 env:
   IPSET_NAME: Blocked
+  Scope: REGIONAL
+  # Can be REGIONAL or CLOUDFRONT
+  S3_BUCKET: ipset-waf
+  S3_BUCKET_URL: s3://ipset-waf/ip-descriptions.json
 
 jobs:
   block-ip:
@@ -36,28 +40,28 @@ jobs:
         continue-on-error: true
         run: |
           aws sts get-caller-identity
-          aws wafv2 create-ip-set --name $IPSET_NAME --scope CLOUDFRONT --ip-address-version IPV4 --addresses 0.0.0.0/32 --region us-east-1
+          aws wafv2 create-ip-set --name $IPSET_NAME --scope $Scope --ip-address-version IPV4 --addresses 0.0.0.0/32 --region us-east-1
       - name: Add the IP to the IP set
         run: |
           sudo apt install jq
           echo ${{ inputs.ip }}
-          ipsetDetails=$(aws wafv2 list-ip-sets --scope CLOUDFRONT --region us-east-1)
+          ipsetDetails=$(aws wafv2 list-ip-sets --scope $Scope --region us-east-1)
           ipsetId=$(echo $ipsetDetails | jq -r '.IPSets[0].Id')
-          ipSet=$(aws wafv2 get-ip-set --name $IPSET_NAME --scope CLOUDFRONT --region us-east-1 --id $ipsetId)
+          ipSet=$(aws wafv2 get-ip-set --name $IPSET_NAME --scope $Scope --region us-east-1 --id $ipsetId)
           addresses=$(echo $ipSet | jq -r '.IPSet.Addresses')
           new_addresses=$(jq -n --argjson ips "$addresses" --arg new_ip "${{ inputs.ip }}/32" '{"Addresses": ($ips + [$new_ip])}')
           echo $new_addresses
           echo $new_addresses > ips.json
 
           lockToken=$(echo $ipSet | jq -r '.LockToken')
-          aws wafv2 update-ip-set --scope CLOUDFRONT --name $IPSET_NAME --id $ipsetId --lock-token $lockToken --region us-east-1 --cli-input-json file://ips.json
+          aws wafv2 update-ip-set --scope $Scope --name $IPSET_NAME --id $ipsetId --lock-token $lockToken --region us-east-1 --cli-input-json file://ips.json
         env:
           AWS_DEFAULT_REGION: us-east-1 # Replace with the AWS region where your WAF is configured
       - name: Add the IP and description to S3 bucket
         run: |
           new_ip="${{ inputs.ip }}/32"
           new_description="${{ inputs.description }}"
-          aws s3api get-object --bucket ipset-waf --key ip-descriptions.json ip-descriptions.json 
+          aws s3api get-object --bucket $S3_BUCKET --key ip-descriptions.json ip-descriptions.json 
           json_data=$(cat ip-descriptions.json)
           existing_entries=$(echo "$json_data" | jq -c '.ip_and_description[]')
           new_entry=$(jq -n --arg ip "$new_ip" --arg desc "$new_description" '{"ip": $ip, "description": $desc}')
@@ -70,4 +74,4 @@ jobs:
 
           updated_json=$(echo "$json_data" | jq '.ip_and_description = '"$updated_entries")
           echo "$updated_json" > ip-descriptions.json
-          aws s3 cp ip-descriptions.json s3://ipset-waf/ip-descriptions.json
+          aws s3 cp ip-descriptions.json $S3_BUCKET_URL

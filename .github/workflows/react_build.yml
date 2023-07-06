@@ -14,6 +14,8 @@ permissions:
 env:
   CI: false
   Scope: REGIONAL
+  # Can be REGIONAL or CLOUDFRONT
+  S3_BUCKET: ipset-waf
 
 jobs:
   build:
@@ -47,7 +49,7 @@ jobs:
 
           json_output="{\"Blocked\": [$blocked_array], \"WhiteList\": [$whitelist_array], \"BlockedGithub\": [$blocked_github_array]}"
           echo $json_output > dev.json
-          aws s3api get-object --bucket ipset-waf --key ip-descriptions.json ip-descriptions.json
+          aws s3api get-object --bucket $S3_BUCKET --key ip-descriptions.json ip-descriptions.json
           python merge.py
           cp -fr ips_with_descriptions.json src
       - name: Setup NodeJS
@@ -63,26 +65,11 @@ jobs:
           npm install --force
           npm run build
 
-      - name: Upload production-ready build files
-        uses: actions/upload-artifact@v2
+      # Push to Github Pages
+      - name: Github Pages
+        uses: crazy-max/ghaction-github-pages@v2.1.3
         with:
-          name: production-files
-          path: ./build
-  deploy:
-    name: Deploy
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: production-files
-          path: ./build
-
-      - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
+          # Build directory to deploy
+          build_dir: build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
