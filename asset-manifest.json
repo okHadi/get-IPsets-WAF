@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/get-IPsets-WAF/static/css/main.87d017b2.css",
+    "main.js": "/get-IPsets-WAF/static/js/main.e1b7f316.js",
+    "static/js/496.a7dcfbf5.chunk.js": "/get-IPsets-WAF/static/js/496.a7dcfbf5.chunk.js",
+    "index.html": "/get-IPsets-WAF/index.html",
+    "main.87d017b2.css.map": "/get-IPsets-WAF/static/css/main.87d017b2.css.map",
+    "main.e1b7f316.js.map": "/get-IPsets-WAF/static/js/main.e1b7f316.js.map",
+    "496.a7dcfbf5.chunk.js.map": "/get-IPsets-WAF/static/js/496.a7dcfbf5.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.87d017b2.css",
+    "static/js/main.e1b7f316.js"
+  ]
+}
