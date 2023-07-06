@@ -38,30 +38,30 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # - name: Create the IP set
-      #   continue-on-error: true
-      #   run: |
-      #     aws sts get-caller-identity
-      #     aws wafv2 create-ip-set --name $IPSET_NAME --scope $Scope --ip-address-version IPV4 --addresses 0.0.0.0/32 --region us-east-1
-      # - name: Add the IP to the IP set
-      #   run: |
-      #     sudo apt install jq
-      #     echo ${{ inputs.ip }}
-      #     ipsetDetails=$(aws wafv2 list-ip-sets --scope $Scope --region us-east-1)
-      #     ipsetId=$(echo $ipsetDetails | jq -r '.IPSets[0].Id')
-      #     ipSet=$(aws wafv2 get-ip-set --name $IPSET_NAME --scope $Scope --region us-east-1 --id $ipsetId)
-      #     addresses=$(echo $ipSet | jq -r '.IPSet.Addresses')
-      #     new_addresses=$(jq -n --argjson ips "$addresses" --arg new_ip "${{ inputs.ip }}/32" '{"Addresses": ($ips + [$new_ip])}')
-      #     echo $new_addresses
-      #     echo $new_addresses > ips.json
+      - name: Create the IP set
+        continue-on-error: true
+        run: |
+          aws sts get-caller-identity
+          aws wafv2 create-ip-set --name $IPSET_NAME --scope $Scope --ip-address-version IPV4 --addresses 0.0.0.0/32 --region us-east-1
+      - name: Add the IP to the IP set
+        run: |
+          sudo apt install jq
+          echo ${{ inputs.ip }}
+          ipsetDetails=$(aws wafv2 list-ip-sets --scope $Scope --region us-east-1)
+          ipsetId=$(echo $ipsetDetails | jq -r '.IPSets[0].Id')
+          ipSet=$(aws wafv2 get-ip-set --name $IPSET_NAME --scope $Scope --region us-east-1 --id $ipsetId)
+          addresses=$(echo $ipSet | jq -r '.IPSet.Addresses')
+          new_addresses=$(jq -n --argjson ips "$addresses" --arg new_ip "${{ inputs.ip }}/32" '{"Addresses": ($ips + [$new_ip])}')
+          echo $new_addresses
+          echo $new_addresses > ips.json
 
-      #     lockToken=$(echo $ipSet | jq -r '.LockToken')
-      #     aws wafv2 update-ip-set --scope $Scope --name $IPSET_NAME --id $ipsetId --lock-token $lockToken --region us-east-1 --cli-input-json file://ips.json
-      #   env:
-      #     AWS_DEFAULT_REGION: us-east-1 # Replace with the AWS region where your WAF is configured
+          lockToken=$(echo $ipSet | jq -r '.LockToken')
+          aws wafv2 update-ip-set --scope $Scope --name $IPSET_NAME --id $ipsetId --lock-token $lockToken --region us-east-1 --cli-input-json file://ips.json
+        env:
+          AWS_DEFAULT_REGION: us-east-1 # Replace with the AWS region where your WAF is configured
       - name: Add the IP and description to S3 bucket
         run: |
-          NEW_IP_WITH_DESCRIPTION={"ip":"$ip/32","description":"$description"}
+          NEW_IP_WITH_DESCRIPTION="{\"ip\":\"$ip/32\",\"description\":\"$description\"}"
           echo $NEW_IP_WITH_DESCRIPTION > new-ip.json
           aws s3api get-object --bucket $S3_BUCKET --key ip-descriptions.json ip-descriptions.json
           python s3_ip_set.py
