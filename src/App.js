@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import statusData from './dev.json';
+import statusData from './ips_with_descriptions.json';
 import { withStyles } from '@material-ui/core/styles';
 import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
 import {
@@ -14,6 +14,7 @@ import {
   Accordion,
   AccordionDetails,
   TextField,
+  Tooltip,
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import './App.css';
@@ -40,21 +41,20 @@ export default function App() {
   const classes = useStyles();
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredData, setFilteredData] = useState({
-    blocked: statusData.Blocked.map(ip => ({ ip, status: 'blocked' })),
-    whitelist: statusData.WhiteList.map(ip => ({ ip, status: 'whitelisted' })),
-    ipsets: statusData.BlockedGithub.map(ip => ({ ip, status: 'ipsets' })),
+    blocked: statusData.Blocked.map(({ ip, description }) => ({ ip, status: 'blocked', description })),
+    whitelist: statusData.WhiteList.map(({ ip, description }) => ({ ip, status: 'whitelisted', description })),
+    ipsets: statusData.BlockedGithub.map(({ ip, description }) => ({ ip, status: 'ipsets', description })),
   });
   useEffect(() => {
     const filteredBlocked = statusData.Blocked.filter((row) =>
-      row.toLowerCase().includes(searchTerm.toLowerCase())
-    ).map(ip => ({ ip, status: 'blocked' }));
+      row.ip.toLowerCase().includes(searchTerm.toLowerCase())
+    ).map(({ ip, description }) => ({ ip, status: 'blocked', description }));
     const filteredWhitelist = statusData.WhiteList.filter((row) =>
-      row.toLowerCase().includes(searchTerm.toLowerCase())
-    ).map(ip => ({ ip, status: 'whitelisted' }));
-    setFilteredData({ blocked: filteredBlocked, whitelist: filteredWhitelist });
+      row.ip.toLowerCase().includes(searchTerm.toLowerCase())
+    ).map(({ ip, description }) => ({ ip, status: 'whitelisted', description }));
     const filteredIpsets = statusData.BlockedGithub.filter((row) =>
-      row.toLowerCase().includes(searchTerm.toLowerCase())
-    ).map(ip => ({ ip, status: 'ipsets' }));
+      row.ip.toLowerCase().includes(searchTerm.toLowerCase())
+    ).map(({ ip, description }) => ({ ip, status: 'ipsets', description }));
     setFilteredData({ blocked: filteredBlocked, whitelist: filteredWhitelist, ipsets: filteredIpsets });
   }, [searchTerm]);
   const AccordionSummary = withStyles({
@@ -103,7 +103,9 @@ export default function App() {
                     {filteredData.blocked.map((ip) => (
                       <TableRow key={ip.ip}>
                         <TableCell component="th" scope="row">
-                          {ip.ip}
+                          <Tooltip title={ip.description} arrow>
+                            <span className='tooltipContent'>{ip.ip}</span>
+                          </Tooltip>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -141,7 +143,9 @@ export default function App() {
                       {filteredData.whitelist.map((ip) => (
                         <TableRow key={ip.ip}>
                           <TableCell component="th" scope="row">
-                            {ip.ip}
+                            <Tooltip title={ip.description} arrow>
+                              <span className='tooltipContent'>{ip.ip}</span>
+                            </Tooltip>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -180,7 +184,9 @@ export default function App() {
                       {filteredData.ipsets.map((ip) => (
                         <TableRow key={ip.ip}>
                           <TableCell component="th" scope="row">
-                            {ip.ip}
+                            <Tooltip title={ip.description} arrow>
+                              <span className='tooltipContent'>{ip.ip}</span>
+                            </Tooltip>
                           </TableCell>
                         </TableRow>
                       ))}
