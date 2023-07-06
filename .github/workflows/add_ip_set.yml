@@ -59,19 +59,7 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1 # Replace with the AWS region where your WAF is configured
       - name: Add the IP and description to S3 bucket
         run: |
-          new_ip="${{ inputs.ip }}/32"
-          new_description="${{ inputs.description }}"
+          NEW_IP_WITH_DESCRIPTION={\"ip\": \"${{ inputs.ip }}/32\", \"description\": \"${{ inputs.description }}\"}
           aws s3api get-object --bucket $S3_BUCKET --key ip-descriptions.json ip-descriptions.json
-          json_data=$(cat ip-descriptions.json)
-          existing_entries=$(echo "$json_data" | jq -c '.ip_and_description[]')
-          new_entry=$(jq -n --arg ip "$new_ip" --arg desc "$new_description" '{ "ip": $ip, "description": $desc }')
-
-          if [[ "$existing_entries" ]]; then
-            updated_entries=$(echo "$existing_entries $new_entry" | jq -s '.[]')
-          else
-            updated_entries="[$new_entry]"
-          fi
-
-          updated_json=$(echo "$json_data" | jq '.ip_and_description = '"$updated_entries")
-          echo "$updated_json" > ip-descriptions.json
+          python s3_ip_set.py
           aws s3 cp ip-descriptions.json $S3_BUCKET_URL
