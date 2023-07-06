@@ -67,7 +67,7 @@ jobs:
           new_entry=$(jq -n --arg ip "$new_ip" --arg desc "$new_description" '{"ip": $ip, "description": $desc}')
 
           if [[ "$existing_entries" ]]; then
-            updated_entries=$(echo "[$existing_entries, $new_entry]" | jq -s '.[]')
+            updated_entries=$(echo "$existing_entries,$new_entry" | jq -s '.[]')
           else
             updated_entries="[$new_entry]"
           fi
