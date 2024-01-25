@@ -73,7 +73,7 @@ export default function App() {
   };
   return (
     <div>
-      <h1>BP WAF PRODUCTION</h1>
+      <h1>Production IPsets</h1>
       <div className="accordion-container">
         <AccordionDetails className={classes.accordionDetails}>
           <Accordion defaultExpanded>
