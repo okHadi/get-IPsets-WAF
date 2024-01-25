@@ -4,7 +4,7 @@ on:
     workflows: ["Add IP to BlockList WAF"]
     types:
       - completed
-  # workflow_dispatch:
+  workflow_dispatch:
 
 permissions:
   contents: write
